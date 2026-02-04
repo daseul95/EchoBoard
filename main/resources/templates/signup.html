@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
+    <style>
+        /* 화면 전체 가운데 정렬 */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: #f5f5f5;
+        }
+
+        .container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px 50px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            width: 300px;
+        }
+
+        h2 {
+            margin-bottom: 30px;
+            color: #4a4a4a;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #4a90e2;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            background-color: #4a90e2;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #357ABD;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>회원가입</h2>
+    <form id="signupForm">
+        <input type="text" name="username" placeholder="유저이름" required />
+        <input type="password" name="password" placeholder="비밀번호" required />
+        <input type="email" name="email" placeholder="이메일" required />
+        <button type="submit">회원가입</button>
+    </form>
+</div>
+
+<script>
+    const form = document.getElementById("signupForm");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const data = {
+            email: form.email.value,
+            password: form.password.value,
+            username: form.username.value
+        };
+
+        const response = await fetch("/api/signup", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            alert("회원가입 성공!");
+            location.href = "/login";
+        } else {
+            alert("회원가입 실패");
+        }
+    });
+</script>
+</body>
+</html>
