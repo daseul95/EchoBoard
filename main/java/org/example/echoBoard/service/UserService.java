@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpSession;
 import org.example.echoBoard.model.SessionEntity;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.example.echoBoard.dto.SignUpRequest;
+import org.example.echoBoard.dto.request.SignUpRequest;
 import org.example.echoBoard.model.User;
 import org.example.echoBoard.repository.LoginHistoryRepository;
 import org.example.echoBoard.repository.SessionRepository;

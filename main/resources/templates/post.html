@@ -10,6 +10,47 @@
             margin: 0;
             padding: 0;
         }
+        .header {
+            margin-bottom: 20px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between; /* 양쪽 끝으로 */
+            align-items: center;
+        }
+
+        .header-bottom {
+            margin-top: 10px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .home-link {
+            text-decoration: none;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .home-link:hover {
+            text-decoration: underline;
+        }
+
+        .write-btn {
+            padding: 8px 14px;
+            background-color: #333;
+            color: #fff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .write-btn:hover {
+            background-color: #111;
+        }
 
         .container {
             width: 90%;
@@ -54,42 +95,34 @@
             color: #666;
         }
 
-        .write-btn {
-            display: inline-block;
-            padding: 12px 25px;
-            margin-bottom: 30px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 8px;
-            background-color: #4a90e2;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            text-decoration: none;
-        }
-
-        .write-btn:hover {
-            background-color: #357ABD;
-            transform: translateY(-2px);
-        }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>게시판</h1>
-    <a href="/post/write" class="write-btn">글쓰기</a>
+    <div class="header">
+        <div class="header-top">
+            <a href="/" class="home-link">← 홈으로</a>
+            <a href="/posts/new" class="write-btn">글쓰기</a>
+        </div>
+        <hr>
     <ul class="post-list">
-        <li onclick="location.href='/post/1'">
-            <h3>첫 번째 게시글 제목</h3>
-            <p>작성자: user1 | 작성일: 2026-02-04</p>
-            <p>게시글 내용 요약... 길면 일부만 보여주기</p>
+        <li th:each="post : ${posts}"
+            th:onclick="|location.href='/posts/${post.id}'|">
+
+            <h3 th:text="${post.title}">게시글 제목</h3>
+
+            <p>
+                작성자:
+                <span th:text="${post.author}">user</span>
+                |
+                작성일:
+                <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">
+                2026-02-04
+            </span>
+            </p>
+
         </li>
-        <li onclick="location.href='/post/2'">
-            <h3>두 번째 게시글 제목</h3>
-            <p>작성자: user2 | 작성일: 2026-02-03</p>
-            <p>게시글 내용 요약... 길면 일부만 보여주기</p>
-        </li>
-        <!-- 더 많은 게시글은 반복해서 추가 -->
     </ul>
 </div>
 </body>

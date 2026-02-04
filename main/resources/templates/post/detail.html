@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${post.title}">게시글</title>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f5f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 60px auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .meta {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .meta span {
+            margin-right: 12px;
+        }
+
+        .content {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #333;
+            white-space: pre-wrap;
+        }
+
+        .actions {
+            margin-top: 40px;
+            text-align: right;
+        }
+
+        .actions a {
+            text-decoration: none;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .actions a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2 th:text="${post.title}">제목</h2>
+
+    <div class="meta">
+        <span>작성자: <strong th:text="${post.author}"></strong></span>
+        <span>|</span>
+        <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+        <span>|</span>
+        <span>조회수 <strong th:text="${post.viewCount}"></strong></span>
+    </div>
+
+    <hr>
+
+    <div class="content" th:text="${post.content}">
+        게시글 내용
+    </div>
+
+    <div class="actions">
+        <a href="/posts">← 목록으로</a>
+    </div>
+</div>
+
+</body>
+</html>

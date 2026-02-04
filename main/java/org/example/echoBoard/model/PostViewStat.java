@@ -24,17 +24,13 @@ public class PostViewStat {
     @Builder.Default
     private Integer viewCount = 0;
 
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        updatedAt = LocalDateTime.now();
+    public PostViewStat(Post post) {
+        this.post = post;
+        this.viewCount = 0;
     }
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+    public void increase(){
+        this.viewCount+=1;
     }
-
 
 }

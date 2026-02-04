@@ -1,4 +1,4 @@
-package org.example.echoBoard.dto;
+package org.example.echoBoard.dto.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

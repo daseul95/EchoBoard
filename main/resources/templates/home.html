@@ -56,9 +56,17 @@
 <div class="container">
     <h1>환영합니다!</h1>
     <p>로그인에 성공했습니다.</p>
-    <form th:action="@{/auth/logout}" method="post">
-        <button type="submit">로그아웃</button>
-    </form>
+    <div class="top-actions">
+        <form th:action="@{/posts}" method="get">
+            <button type="submit" class="btn secondary">게시판 가기</button>
+        </form>
+
+        <br>
+
+        <form th:action="@{/auth/logout}" method="post">
+            <button type="submit" class="btn danger">로그아웃</button>
+        </form>
+    </div>
 </div>
 </body>
 </html>

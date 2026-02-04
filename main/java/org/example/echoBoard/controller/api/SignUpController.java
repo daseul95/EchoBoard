@@ -1,7 +1,7 @@
 package org.example.echoBoard.controller.api;
 
 import lombok.RequiredArgsConstructor;
-import org.example.echoBoard.dto.SignUpRequest;
+import org.example.echoBoard.dto.request.SignUpRequest;
 import org.example.echoBoard.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
