@@ -118,12 +118,13 @@
                 |
                 작성일:
                 <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">
-                2026-02-04
-            </span>
+                2026-02-04</span>
+                | 조회수: <span th:text="${post.viewCount}">0</span>
             </p>
 
         </li>
     </ul>
+</div>
 </div>
 </body>
 </html>

@@ -6,6 +6,7 @@ import org.example.echoBoard.dto.request.PostCreateRequest;
 import org.example.echoBoard.dto.response.PostResponse;
 import org.example.echoBoard.model.User;
 import org.example.echoBoard.service.PostService;
+import org.example.echoBoard.service.RedisService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
-
+    private final RedisService redisService;
     // 글 작성
     @PostMapping("/new")
     public Long createPost(@RequestBody PostCreateRequest request,
