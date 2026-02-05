@@ -1,5 +1,6 @@
 package org.example.echoBoard.service;
 
+import com.sun.jdi.LongValue;
 import lombok.RequiredArgsConstructor;
 import org.example.echoBoard.model.Post;
 import org.example.echoBoard.model.PostViewStat;
@@ -86,8 +87,14 @@ public class RedisService {
         return topIdsList;
     }
 
-    public Set<String> getAllPostViewKeys() {
-        return redisTemplate.keys(POST_VIEW_STAT_KEY_PREFIX + "*:views");
+    public Long getPostViewByPostId(Long postId) {
+        String key = POST_VIEW_STAT_KEY_PREFIX + postId + ":views";
+        String strValue =  redisTemplate.opsForValue().get(key);
+        long viewCount = strValue != null
+                ? Long.parseLong(strValue)
+                : 0L;
+
+        return viewCount;
     }
 
     public void syncTopPostsFromRedis() {

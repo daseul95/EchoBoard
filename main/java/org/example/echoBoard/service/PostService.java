@@ -12,6 +12,8 @@ import org.example.echoBoard.repository.PostViewStatRepository;
 import org.example.echoBoard.repository.UserRepository;
 import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,21 +52,21 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponse> findAll() {
-        List<Post> posts = postRepository.findAllByOrderByCreatedAtDesc();
+    public Page<PostResponse> findAll(Pageable pageable) {
+        Page<Post> posts = postRepository.findAllByOrderByCreatedAtDesc(pageable);
         List<Long> postIds = posts.stream().map(Post::getId).toList();
 
         Map<Long,Long> viewCountMap = redisService.getAllViewCount(postIds);
 
-        return posts.stream().map(post -> new PostResponse(
+        return posts.map(post -> new PostResponse(
                 post,viewCountMap.getOrDefault(post.getId(),0L)
                 )
-        ).toList();
+        );
 
     }
 
-    public List<PostResponse> findTop10Post() {
-        List<Long> topPostIds = redisService.getTopPosts(10);
+    public List<PostResponse> findTop5Post() {
+        List<Long> topPostIds = redisService.getTopPosts(5);
 
         // 2. DB에서 Post 조회
         List<Post> posts = postRepository.findAllById(topPostIds);
@@ -90,12 +92,10 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음"));
 
-        PostViewStat stat = postViewStatRepository.findByPostId(postId)
-                .orElseThrow(() -> new IllegalStateException("조회수 정보 없음"));
-
+        long viewCount = redisService.getPostViewByPostId(postId);
         redisService.incrementView(postId);
 
-        return PostDetailResponse.from(post, stat.getViewCount());
+        return PostDetailResponse.from(post, viewCount);
     }
 
     public void increaseViewCount(Long postId) {

@@ -61,16 +61,16 @@
 
         .top-posts {
             background: #fff3cd;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom:  20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
         }
 
         .top-posts h2 {
             margin-top: 0;
             color: #d48806;
-            font-size: 20px;
+            font-size: 16px;
         }
 
         .top-post-list {
@@ -82,8 +82,9 @@
         .top-post-list li {
             display: flex;
             align-items: center;
-            padding: 10px;
+            padding: 6px 4px;
             cursor: pointer;
+            font-size: 0.9rem;
             border-bottom: 1px solid #eee;
         }
 
@@ -92,19 +93,25 @@
         }
 
         .rank {
-            font-weight: bold;
-            width: 30px;
+            font-weight: 600;          /* bold → 살짝만 */
+            width: 22px;               /* 30 → 22 */
+            font-size: 0.85rem;        /* 랭크 축소 */
             color: #fa541c;
         }
 
         .title {
             flex: 1;
             font-weight: 500;
+            font-size: 0.9rem;         /* 제목 축소 */
+            white-space: nowrap;       /* 한 줄 유지 */
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .views {
-            font-size: 13px;
+            font-size: 0.7rem;         /* 0.75 → 0.7 */
             color: #888;
+            margin-left: 8px;          /* auto → 간격만 */
         }
 
         h1 {
@@ -119,27 +126,49 @@
         }
 
         .post-list li {
-            background-color: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: #fff;
+            padding: 10px 6px;
+            margin: 0;
+            border-bottom: 1px solid #eaeaea;
+            border-radius: 0;
+            box-shadow: none;
             text-align: left;
-            transition: transform 0.2s ease;
             cursor: pointer;
         }
-
         .post-list li:hover {
-            transform: translateY(-2px);
+            background-color: #f9f9f9;
+            transform: none;
         }
 
         .post-list li h3 {
-            margin: 0 0 10px 0;
-            color: #333;
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 500;
         }
 
         .post-list li p {
-            margin: 0;
+            margin-top: 4px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .pagination a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .pagination a:hover {
+            text-decoration: underline;
+        }
+
+        .page-info {
             color: #666;
         }
 
@@ -185,6 +214,23 @@
 
         </li>
     </ul>
+        <div class="pagination">
+            <a th:if="${page.hasPrevious()}"
+               th:href="@{/posts(page=${page.number - 1})}">
+                이전
+            </a>
+
+            <span class="page-info">
+        <span th:text="${page.number + 1}"></span>
+        /
+        <span th:text="${page.totalPages}"></span>
+    </span>
+
+            <a th:if="${page.hasNext()}"
+               th:href="@{/posts(page=${page.number + 1})}">
+                다음
+            </a>
+        </div>
 </div>
 </div>
 </body>

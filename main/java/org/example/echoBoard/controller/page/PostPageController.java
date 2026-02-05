@@ -2,9 +2,13 @@ package org.example.echoBoard.controller.page;
 
 import lombok.RequiredArgsConstructor;
 import org.example.echoBoard.dto.response.PostDetailResponse;
+import org.example.echoBoard.dto.response.PostResponse;
 import org.example.echoBoard.model.Post;
 import org.example.echoBoard.service.PostService;
 import org.example.echoBoard.service.RedisService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,9 +30,11 @@ public class PostPageController {
 
     // 글 목록
     @GetMapping
-    public String postList(Model model) {
-        model.addAttribute("posts", postService.findAll());
-        model.addAttribute("topPosts", postService.findTop10Post()); // TOP N
+    public String postList(@PageableDefault(size = 10) Pageable pageable, Model model) {
+        Page<PostResponse> page = postService.findAll(pageable);
+        model.addAttribute("posts", page.getContent());
+        model.addAttribute("page",page);
+        model.addAttribute("topPosts", postService.findTop5Post()); // TOP N
         return "post";
     }
 
@@ -49,7 +55,7 @@ public class PostPageController {
     // 인기 게시글 Top 10
     @GetMapping("/top")
     public List<Post> getTopPosts() {
-       List<Long> topIds = redisService.getTopPosts(10);
+       List<Long> topIds = redisService.getTopPosts(5);
         return topIds.stream()
                 .map(postService::findById)
                 .filter(Objects::nonNull)
