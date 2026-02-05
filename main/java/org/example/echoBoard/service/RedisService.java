@@ -11,9 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,11 +32,27 @@ public class RedisService {
     public void incrementView(Long postId) {
         // Redis 조회수 증가
         redisTemplate.opsForValue().increment(POST_VIEW_STAT_KEY_PREFIX + postId + ":views");
+
+        redisTemplate.opsForZSet()
+                .incrementScore("top:posts", postId.toString(), 1);
     }
 
-    public int getViewCount(Long postId) {
-        String val = redisTemplate.opsForValue().get(POST_VIEW_STAT_KEY_PREFIX + postId + ":views");
-        return val == null ? 0 : Integer.parseInt(val);
+    public Map<Long,Long> getAllViewCount(List<Long> postIds) {
+
+        List<String> keys = postIds.stream().map(id -> "postviewstat:"+id+":views")
+                .toList();
+
+        List<String> values = redisTemplate.opsForValue().multiGet(keys);
+
+        Map<Long,Long> result = new HashMap<>();
+
+        for (int i = 0; i<postIds.size();i++){
+            String value = values.get(i);
+            result.put(postIds.get(i),value == null?0L:Long.parseLong(value));
+        }
+
+        return result;
+
     }
 
     @Scheduled(fixedRate = 60000) // 1분마다
@@ -58,20 +72,41 @@ public class RedisService {
     }
 
     // Top N 인기 게시글 가져오기
-    public Set<Long> getTopPosts(int n) {
+    public List<Long> getTopPosts(int n) {
         // ZSET에서 score 기준으로 내림차순
         Set<String> topIds = redisTemplate.opsForZSet()
                 .reverseRange(TOP_POSTS_KEY, 0, n - 1);
-        if(topIds == null) return Set.of();
+        if(topIds == null) return List.of();
 
         // String -> Long 변환
-        return topIds.stream()
+        List<Long> topIdsList= topIds.stream()
                 .map(Long::parseLong)
-                .collect(Collectors.toSet());
+                .toList();
+
+        return topIdsList;
     }
 
     public Set<String> getAllPostViewKeys() {
         return redisTemplate.keys(POST_VIEW_STAT_KEY_PREFIX + "*:views");
     }
+
+    public void syncTopPostsFromRedis() {
+        Set<String> keys = redisTemplate.keys("postviewstat:*:views");
+
+        if (keys == null) return;
+
+        for (String key : keys) {
+            String postId = key.replace("postviewstat:", "")
+                    .replace(":views", "");
+
+            Integer views = Integer.parseInt(
+                    redisTemplate.opsForValue().get(key)
+            );
+
+            redisTemplate.opsForZSet()
+                    .add("top:posts", postId, views);
+        }
+    }
+
 
 }

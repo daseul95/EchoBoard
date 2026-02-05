@@ -59,6 +59,54 @@
             text-align: center;
         }
 
+        .top-posts {
+            background: #fff3cd;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .top-posts h2 {
+            margin-top: 0;
+            color: #d48806;
+            font-size: 20px;
+        }
+
+        .top-post-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .top-post-list li {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .top-post-list li:last-child {
+            border-bottom: none;
+        }
+
+        .rank {
+            font-weight: bold;
+            width: 30px;
+            color: #fa541c;
+        }
+
+        .title {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .views {
+            font-size: 13px;
+            color: #888;
+        }
+
         h1 {
             color: #4a4a4a;
             margin-bottom: 30px;
@@ -106,6 +154,19 @@
             <a href="/posts/new" class="write-btn">글쓰기</a>
         </div>
         <hr>
+        <div class="top-posts">
+            <h2>🔥 인기 게시글 TOP 5</h2>
+            <ul class="top-post-list">
+                <li th:each="post, stat : ${topPosts}"
+                    th:onclick="|location.href='/posts/${post.id}'|">
+                    <span class="rank" th:text="${stat.index + 1}">1</span>
+                    <span class="title" th:text="${post.title}">제목</span>
+                    <span class="views">
+                조회수 <span th:text="${post.viewCount}">0</span>
+            </span>
+                </li>
+            </ul>
+        </div>
     <ul class="post-list">
         <li th:each="post : ${posts}"
             th:onclick="|location.href='/posts/${post.id}'|">

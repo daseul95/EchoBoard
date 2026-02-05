@@ -16,7 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,16 +51,40 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public List<PostResponse> findAll() {
-        return postRepository.findAllByOrderByCreatedAtDesc().stream()
-                .map(post -> new PostResponse(post, getViewCount(post.getId())))
+        List<Post> posts = postRepository.findAllByOrderByCreatedAtDesc();
+        List<Long> postIds = posts.stream().map(Post::getId).toList();
+
+        Map<Long,Long> viewCountMap = redisService.getAllViewCount(postIds);
+
+        return posts.stream().map(post -> new PostResponse(
+                post,viewCountMap.getOrDefault(post.getId(),0L)
+                )
+        ).toList();
+
+    }
+
+    public List<PostResponse> findTop10Post() {
+        List<Long> topPostIds = redisService.getTopPosts(10);
+
+        // 2. DB에서 Post 조회
+        List<Post> posts = postRepository.findAllById(topPostIds);
+
+        // 3. postId 순서 유지 (중요)
+        Map<Long, Post> postMap = posts.stream()
+                .collect(Collectors.toMap(Post::getId, p -> p, (a, b) -> a));
+
+        Map<Long, Long> mapViewCount = redisService.getAllViewCount(topPostIds);
+
+        // 4. PostResponse 변환
+        return topPostIds.stream()
+                .map(postMap::get)
+                .filter(Objects::nonNull)
+                .map(post -> new PostResponse(
+                        post, mapViewCount.getOrDefault(post.getId(), 0L)
+                ))
                 .toList();
     }
 
-    public long getViewCount(Long postId) {
-        return postViewStatRepository.findByPostId(postId)
-                .map(PostViewStat::getViewCount)
-                .orElse(0);
-    }
 
     public PostDetailResponse findDetail(Long postId) {
         Post post = postRepository.findById(postId)

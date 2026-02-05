@@ -28,6 +28,7 @@ public class PostPageController {
     @GetMapping
     public String postList(Model model) {
         model.addAttribute("posts", postService.findAll());
+        model.addAttribute("topPosts", postService.findTop10Post()); // TOP N
         return "post";
     }
 
@@ -48,7 +49,7 @@ public class PostPageController {
     // 인기 게시글 Top 10
     @GetMapping("/top")
     public List<Post> getTopPosts() {
-        Set<Long> topIds = redisService.getTopPosts(10);
+       List<Long> topIds = redisService.getTopPosts(10);
         return topIds.stream()
                 .map(postService::findById)
                 .filter(Objects::nonNull)

@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class RedisToDbSync {
@@ -27,9 +28,14 @@ public class RedisToDbSync {
     @Scheduled(fixedRate = 300_000) // 5분마다
     public void syncViewsToDb() {
         List<Post> posts = postRepository.findAll();
+        List<Long> postIds = posts.stream().map(Post::getId).toList();
+        Map<Long, Long> postIdAndViewCount= redisService.getAllViewCount(postIds);
 
         for (Post post : posts) {
-            int redisViews = redisService.getViewCount(post.getId());
+            int redisViews =  postIdAndViewCount
+                    .getOrDefault(post.getId(), 0L)
+                    .intValue();
+
             if(redisViews == 0) continue;
 
             PostViewStat stat = postViewStatRepository.findById(post.getId()).orElse(new PostViewStat());
