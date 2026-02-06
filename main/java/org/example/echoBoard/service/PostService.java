@@ -27,16 +27,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PostService {
 
+    private final UserService userService;
+    private final RedisService redisService;
+
     private final PostRepository postRepository;
     private final PostViewStatRepository postViewStatRepository;
-    private final UserRepository userRepository;
 
-    private final RedisService redisService;
 
     @Transactional
     public Long create(PostCreateRequest request, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+        User user = userService.findById(userId);
 
         Post post = postRepository.save(
                 new Post(request.getTitle(), request.getContent(), user)
@@ -93,14 +93,12 @@ public class PostService {
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음"));
 
         long viewCount = redisService.getPostViewByPostId(postId);
-        redisService.incrementView(postId);
 
         return PostDetailResponse.from(post, viewCount);
     }
 
-    public void increaseViewCount(Long postId) {
-        PostViewStat stat = postViewStatRepository.findByPostId(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
-        stat.increase();
+    public void increaseViewCount(Long postId){
+        redisService.incrementView(postId);
     }
+
 }

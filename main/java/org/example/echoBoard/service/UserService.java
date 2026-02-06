@@ -25,9 +25,7 @@ public class UserService{
 
 유저 조회
 로그인 성공/실패 판단
-로그인 결과를 LoginHistoryService에 위임
 
-UserService는 ‘판단’만 하고, 기록은 직접 안 함
   */
 
     private final UserRepository userRepository;

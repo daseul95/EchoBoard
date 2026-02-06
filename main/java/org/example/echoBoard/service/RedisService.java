@@ -19,12 +19,10 @@ import java.util.stream.Collectors;
 public class RedisService {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private final PostViewStatRepository postViewStatRepository;
 
     public RedisService(RedisTemplate<String, String> redisTemplate
             , PostViewStatRepository postViewStatRepository) {
         this.redisTemplate = redisTemplate;
-        this.postViewStatRepository = postViewStatRepository;
     }
 
     private final String TOP_POSTS_KEY = "top:posts";

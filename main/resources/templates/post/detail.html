@@ -58,6 +58,130 @@
         .actions a:hover {
             text-decoration: underline;
         }
+        .comment-section {
+            margin-top: 40px;
+        }
+
+        .comment-title {
+            margin-bottom: 16px;
+        }
+
+        .comment {
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .comment-header {
+            display: flex;
+            gap: 10px;
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 6px;
+        }
+
+        .comment-user {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .comment-content {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #222;
+            white-space: pre-wrap;
+        }
+
+        /* 댓글 입력 */
+        .comment-form {
+            margin-top: 20px;
+        }
+
+        .comment-form textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        .comment-form button {
+            margin-top: 8px;
+            padding: 6px 14px;
+            font-size: 13px;
+            border: none;
+            border-radius: 4px;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .comment-form button:hover {
+            background-color: #555;
+        }
+        .replies {
+            margin-top: 10px;
+            margin-left: 20px;
+            border-left: 2px solid #eee;
+            padding-left: 12px;
+        }
+
+        .reply {
+            margin-top: 8px;
+        }
+        .reply-toggle {
+            font-size: 12px;
+            color: #9ca3af; /* 아주 연한 회색 */
+            cursor: pointer;
+            margin-left: 0;
+            opacity: 0.6;
+        }
+
+        .reply-header {
+            font-size: 12px;
+            color: #777;
+        }
+
+        .reply-content {
+            font-size: 14px;
+            color: #333;
+            margin-top: 2px;
+        }
+
+        .reply-form {
+            margin-left: 24px;
+            margin-top: 8px;
+            padding-left: 12px;
+            border-left: 2px solid #e5e7eb;
+
+        }
+
+        .reply-form textarea {
+            width: 100%;
+            min-height: 60px;
+            padding: 6px;
+            font-size: 13px;
+            resize: none;
+        }
+        .reply-form textarea:focus {
+            outline: none;
+            border: 1px solid #6366f1; /* 살짝 포인트 */
+        }
+        .reply-form button {
+            margin-top: 6px;
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            border: none;
+            background: #4f46e5;
+            color: white;
+            cursor: pointer;
+        }
+
+        .reply-form button:hover {
+            background: #4338ca;
+        }
     </style>
 </head>
 
@@ -79,11 +203,133 @@
     <div class="content" th:text="${post.content}">
         게시글 내용
     </div>
+    <hr>
 
-    <div class="actions">
-        <a href="/posts">← 목록으로</a>
+    <div class="comment-section">
+        <div id="commentList"></div>
     </div>
+
+    <h4>댓글 작성</h4>
+
+    <form id="commentForm" class="comment-form">
+    <textarea name="content"
+              placeholder="댓글을 입력하세요"
+              required></textarea>
+        <button type="submit">등록</button>
+    </form>
+
 </div>
 
+<script th:inline="javascript">
+    console.log("스크립트 로딩됨");
+
+    const postId = [[${post.id}]];
+
+    console.log("postId =", postId);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        console.log("DOM 로딩 완료");
+
+        // 여기서 DOM 만져라
+    });
+
+    //대댓글 토글
+    document.addEventListener("click", function (e) {
+        if (!e.target.classList.contains("reply-toggle")) return;
+
+        const id = e.target.dataset.id;
+        const form = document.querySelector(`.reply-form[data-id="${id}"]`);
+
+        if (!form) return;
+
+        // 토글
+        form.style.display =
+            form.style.display === "none" ? "block" : "none";
+
+        });
+    // 댓글 등록
+    document.getElementById('commentForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const content = this.content.value;
+
+        fetch(`/posts/${postId}/comments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({ content })
+        })
+            .then(() => {
+                this.content.value = '';
+                loadComments();
+            });
+    });
+
+    // 댓글 로드
+    function loadComments() {
+        fetch(`/posts/${postId}/comments`)
+            .then(res => res.json())
+            .then(comments => {
+                console.log("받아온 댓글",comments);
+                const container = document.getElementById("commentList");
+                if (!container) {
+                    console.error("commentList 없음");
+                    return;
+                }
+                container.innerHTML = comments.map(c => `
+
+                <div class="comment">
+                    <div class="comment-header">
+                        <b>${c.username}</b>
+                        <span>${formatDate(c.createdAt)}</span>
+                    </div>
+
+                    <div class="comment-content">${c.content}</div>
+
+                    <div class="replies">
+                        ${(c.replies ?? []).map(r => `
+                            <div class="reply">
+                                ↳ <b>${r.username}</b> ${r.content}
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <span class="reply-toggle" data-id="${c.id}">답글</span>
+                     <form class="reply-form"
+                               data-id="${c.id}"
+                                  onsubmit="submitReply(event, ${c.id})"
+                                  style="display: none;">
+                        <textarea name="content" placeholder="답글 입력" required></textarea>
+                        <button type="submit">등록</button>
+                    </form>
+                </div>
+            `).join('');
+                console.log("컨테이너:", container);   // ⭐ 추가
+            });
+    }
+
+
+    // 대댓글 등록
+    function submitReply(e, parentId) {
+        e.preventDefault();
+        const content = e.target.content.value;
+
+        fetch(`/posts/${postId}/comments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ content, parentId })
+        }).then(() => {
+            loadComments();
+        });
+    }
+
+    function formatDate(dateStr) {
+        return new Date(dateStr).toLocaleString();
+    }
+
+    // 최초 로딩
+    loadComments();
+</script>
 </body>
 </html>
