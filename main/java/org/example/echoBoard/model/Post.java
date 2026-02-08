@@ -24,7 +24,7 @@ public class Post {
     @Column(length = 200, nullable = false)
     private String title;
 
-    @Column
+    @Column(columnDefinition = "LONGTEXT")
     @Lob
     private String content;
 

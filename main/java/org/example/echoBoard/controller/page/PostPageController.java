@@ -54,8 +54,12 @@ public class PostPageController {
 
         PostDetailResponse postResponse = postService.findDetail(id);// 조회수 증가;
         List<CommentResponse> comments = commentService.findByPostId(id);
+
+        Long userId = (Long) session.getAttribute("USER_ID");
+
         model.addAttribute("post", postResponse);
         model.addAttribute("comments", comments);
+        model.addAttribute("USER_ID",userId);
         return "post/detail";
     }
 
@@ -77,7 +81,7 @@ public class PostPageController {
         return commentService.findByPostId(id);
     }
 
-    // 인기 게시글 Top 10
+    // 인기 게시글 Top 5
     @GetMapping("/top")
     public List<Post> getTopPosts() {
        List<Long> topIds = redisService.getTopPosts(5);

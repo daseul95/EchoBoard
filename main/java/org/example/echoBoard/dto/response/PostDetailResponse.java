@@ -14,6 +14,7 @@ public class PostDetailResponse {
     private String title;
     private String content;
     private String author;
+    private Long userId;
     private LocalDateTime createdAt;
     private long viewCount;
 
@@ -23,6 +24,7 @@ public class PostDetailResponse {
                 post.getTitle(),
                 post.getContent(),
                 post.getUser().getUsername(),
+                post.getUser().getId(),
                 post.getCreatedAt(),
                 viewCount
         );

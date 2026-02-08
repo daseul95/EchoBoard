@@ -129,6 +129,7 @@ public class CommentService {
                     .id(comment.getId())
                     .content(comment.getContent())
                     .username(comment.getUser().getUsername())
+                    .userId(comment.getUser().getId())
                     .createdAt(comment.getCreatedAt())
                     .parentId(comment.getParent() != null ? comment.getParent().getId() : null)
                     .replies(new ArrayList<>())

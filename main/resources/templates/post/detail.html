@@ -58,6 +58,19 @@
         .actions a:hover {
             text-decoration: underline;
         }
+        .post-content {
+            margin: 28px 0;
+            padding: 18px 0;
+
+            font-size: 15px;
+            line-height: 1.8;
+            color: #333;
+
+            white-space: pre-wrap;
+
+            border-top: 1px solid #e5e5e5;
+            border-bottom: 1px solid #e5e5e5;
+        }
         .comment-section {
             margin-top: 10px;
         }
@@ -76,7 +89,7 @@
             gap: 10px;
             font-size: 13px;
             color: #777;
-            margin-bottom: 6px;
+            margin-bottom: 1px;
         }
 
         .comment-user {
@@ -85,10 +98,15 @@
         }
 
         .comment-content {
+            display: inline-flex;   /* flex지만 라인 브레이크 최소화 */
+            align-items: center;  /* 텍스트와 버튼 수직 중앙 정렬 */
+            gap: 8px;             /* 텍스트와 버튼 사이 간격 */
             font-size: 14px;
             line-height: 1.5;
             color: #222;
             white-space: pre-wrap;
+            border: none;  /* comment-content 안쪽 border 제거 */
+            padding-bottom: 0;
         }
 
         /* 댓글 입력 */
@@ -112,23 +130,23 @@
             font-size: 13px;
             border: none;
             border-radius: 4px;
-            background-color: #333;
+            background: #4f46e5;
             color: #fff;
             cursor: pointer;
         }
 
         .comment-form button:hover {
-            background-color: #555;
+            background: #4338ca;
         }
         .replies {
-            margin-top: 10px;
+            margin-top: 2px;
             margin-left: 20px;
             border-left: 2px solid #eee;
             padding-left: 12px;
         }
 
         .reply {
-            margin-top: 8px;
+            margin-top: 2px;
         }
         .reply-toggle {
             font-size: 12px;
@@ -197,12 +215,54 @@
         .reply-form button:hover {
             background: #4338ca;
         }
+
+        /* 공통 삭제 버튼 스타일 */
+        button.delete-post-btn,
+        button.delete-comment-btn {
+            color: #bbb;
+            background: none;
+            border: none;
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-left: 14px;
+            opacity: 0.6;
+        }
+
+        button.delete-comment-btn:hover {
+            opacity: 1;
+            color: #888;
+            text-decoration: underline;
+        }
+
+        button.delete-post-btn:active,
+        button.delete-comment-btn:active {
+            background-color: #666;   /* 클릭 시 더 진하게 */
+        }
+
+        button.delete-post-btn {
+            background-color: #f4b266; /* 밝고 따뜻한 주황 */
+            color: white;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        button.delete-post-btn:hover {
+            background-color: #eea44f; /* 한 톤 다운 */
+            color: white;
+        }
+
+        .reply button.delete-comment-btn {
+            margin-left: 10px;  /* 대댓글과 구분 */
+            font-size: 0.75rem;
+        }
     </style>
 </head>
 
 <body>
 
-<div class="container post" th:data-id="${post.id}" >
+<div class="container post">
     <h2 th:text="${post.title}">제목</h2>
 
     <div class="meta">
@@ -213,12 +273,12 @@
         <span>조회수 <strong th:text="${post.viewCount}"></strong></span>
     </div>
 
-    <hr>
 
-    <div class="content" th:text="${post.content}">
+
+    <div class="post-content" th:text="${post.content}">
         게시글 내용
     </div>
-    <hr>
+
     <div class="header-top">
     <div style="margin-bottom: 15px;">
         <a href="/posts" style="
@@ -227,7 +287,8 @@
             text-decoration: none;" class="post-link"> 게시판으로 돌아가기</a>
     </div>
 
-    <button class="delete-post-btn" >삭제</button>
+    <button th:if="${USER_ID != null and USER_ID == post.userId}"
+            class="delete-post-btn" th:data-id="${post.id}">삭제</button>
 
     </div>
     <div class="comment-section">
@@ -249,8 +310,11 @@
     console.log("스크립트 로딩됨");
 
     const postId = [[${post.id}]];
+    const userId =[[${USER_ID}]];
 
     console.log("postId =", postId);
+    console.log("USER_ID:"+userId);
+    console.log("타입:", typeof userId);
 
     document.addEventListener("DOMContentLoaded", () => {
         console.log("DOM 로딩 완료");
@@ -312,6 +376,7 @@
         fetch(`/posts/${postId}/comments`)
             .then(res => res.json())
             .then(comments => {
+
                 console.log("받아온 댓글",comments);
                 const container = document.getElementById("commentList");
                 if (!container) {
@@ -325,16 +390,16 @@
                         <b>${c.username}</b>
                         <span>${formatDate(c.createdAt)}</span>
                     </div>
+                       <span class="comment-text">${c.content}</span>
+            ${c.userId === userId ?
+                    `<button class="delete-comment-btn" data-id="${c.id}">삭제</button>` : ''}
 
-                    <div class="comment-content">${c.content}
-                      <button class="delete-comment-btn">삭제</button>
-                      </div>
 
                     <div class="replies">
                         ${(c.replies ?? []).map(r => `
                             <div class="reply" data-id="${r.id}">
                                 ↳ <b>${r.username}</b> ${r.content}
-                                <button class="delete-comment-btn">삭제</button>
+                    ${r.userId === userId ?  `<button class="delete-comment-btn" data-id="${r.id}">삭제</button>` : ''}
                             </div>
                         `).join('')}
 
@@ -349,6 +414,7 @@
                         <button type="submit">등록</button>
                     </form>
                 </div>
+                  </div>
             `).join('');
                 console.log("컨테이너:", container);   // ⭐ 추가
             });

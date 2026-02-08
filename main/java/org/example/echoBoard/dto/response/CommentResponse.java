@@ -16,6 +16,7 @@ public class CommentResponse {
     private Long id;
     private String content;
     private String username;
+    private Long userId;
     private LocalDateTime createdAt;
     private Long parentId; // 대댓글이면 parent 댓글 id
     @Builder.Default
