@@ -17,4 +17,6 @@ public class RedisTestRunner implements CommandLineRunner {
         String value = redisTemplate.opsForValue().get("spring:test");
         System.out.println("Redis 연결 테스트 = " + value);
     }
+
+
 }

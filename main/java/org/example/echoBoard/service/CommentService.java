@@ -102,6 +102,27 @@ public class CommentService {
                 .toList();
     }
 
+    @Transactional
+    public void deleteCommentsByPostId(Long postId) {
+        commentRepository.deleteRepliesByPostId(postId);
+        commentRepository.deleteParentCommentsByPostId(postId);
+    }
+
+
+    @Transactional
+    public void deleteComment(Long commentId) {
+        if (!commentRepository.existsById(commentId)) {
+            throw new RuntimeException("댓글 없음");
+        }
+
+        // 대댓글 먼저 삭제
+        commentRepository.deleteRepliesByParentId(commentId);
+
+        // 부모 댓글 삭제
+        commentRepository.deleteByIdDirect(commentId);
+    }
+
+
     private CommentResponse toDto(Comment comment) {
         try {
             return CommentResponse.builder()

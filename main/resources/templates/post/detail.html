@@ -59,7 +59,7 @@
             text-decoration: underline;
         }
         .comment-section {
-            margin-top: 40px;
+            margin-top: 10px;
         }
 
         .comment-title {
@@ -157,6 +157,21 @@
 
         }
 
+        .post-link {
+            text-decoration: none;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between; /* 양쪽 끝으로 */
+            align-items: center;
+            margin-top: 10px;
+        }
+
+
+
         .reply-form textarea {
             width: 100%;
             min-height: 60px;
@@ -187,7 +202,7 @@
 
 <body>
 
-<div class="container">
+<div class="container post" th:data-id="${post.id}" >
     <h2 th:text="${post.title}">제목</h2>
 
     <div class="meta">
@@ -204,7 +219,17 @@
         게시글 내용
     </div>
     <hr>
+    <div class="header-top">
+    <div style="margin-bottom: 15px;">
+        <a href="/posts" style="
+            font-size: 14px;
+            color: #555;
+            text-decoration: none;" class="post-link"> 게시판으로 돌아가기</a>
+    </div>
 
+    <button class="delete-post-btn" >삭제</button>
+
+    </div>
     <div class="comment-section">
         <div id="commentList"></div>
     </div>
@@ -230,7 +255,6 @@
     document.addEventListener("DOMContentLoaded", () => {
         console.log("DOM 로딩 완료");
 
-        // 여기서 DOM 만져라
     });
 
     //대댓글 토글
@@ -266,6 +290,23 @@
             });
     });
 
+    //삭제
+    document.addEventListener('click', async (e) => {
+        if(e.target.classList.contains('delete-post-btn')) {
+            if (!confirm("정말 삭제할까요?")) return;
+            const postId = e.target.closest('.post').dataset.id;
+            await fetch(`/api/posts/${postId}`, { method: 'DELETE' });
+            window.location.href = "/posts";
+        }
+
+        if(e.target.classList.contains('delete-comment-btn')) {
+            const commentId = e.target.closest('.comment, .reply').dataset.id;
+            if (!confirm("댓글을 삭제할까요?")) return;
+            await fetch(`/api/posts/comments/${commentId}`, { method: 'DELETE' });
+            e.target.closest('.comment, .reply').remove();
+        }
+    });
+
     // 댓글 로드
     function loadComments() {
         fetch(`/posts/${postId}/comments`)
@@ -279,20 +320,24 @@
                 }
                 container.innerHTML = comments.map(c => `
 
-                <div class="comment">
+                <div class="comment" data-id="${c.id}">
                     <div class="comment-header">
                         <b>${c.username}</b>
                         <span>${formatDate(c.createdAt)}</span>
                     </div>
 
-                    <div class="comment-content">${c.content}</div>
+                    <div class="comment-content">${c.content}
+                      <button class="delete-comment-btn">삭제</button>
+                      </div>
 
                     <div class="replies">
                         ${(c.replies ?? []).map(r => `
-                            <div class="reply">
+                            <div class="reply" data-id="${r.id}">
                                 ↳ <b>${r.username}</b> ${r.content}
+                                <button class="delete-comment-btn">삭제</button>
                             </div>
                         `).join('')}
+
                     </div>
 
                     <span class="reply-toggle" data-id="${c.id}">답글</span>

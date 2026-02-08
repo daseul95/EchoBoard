@@ -11,5 +11,6 @@ import java.util.Optional;
 @Repository
 public interface PostViewStatRepository extends JpaRepository<PostViewStat, Long> {
     Optional<PostViewStat> findByPostId(Long postId);
-    List<Post> findTop10ByOrderByViewCountDesc();
+    List<PostViewStat> findTop5ByOrderByViewCountDesc();
+
 }

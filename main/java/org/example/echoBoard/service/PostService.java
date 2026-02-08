@@ -2,8 +2,10 @@ package org.example.echoBoard.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.echoBoard.dto.request.PostCreateRequest;
+import org.example.echoBoard.dto.response.CommentResponse;
 import org.example.echoBoard.dto.response.PostDetailResponse;
 import org.example.echoBoard.dto.response.PostResponse;
+import org.example.echoBoard.model.Comment;
 import org.example.echoBoard.model.Post;
 import org.example.echoBoard.model.PostViewStat;
 import org.example.echoBoard.model.User;
@@ -100,5 +102,13 @@ public class PostService {
     public void increaseViewCount(Long postId){
         redisService.incrementView(postId);
     }
+
+    @Transactional
+    public void deletePost(Long postId){
+        postRepository.deleteById(postId);
+        redisService.deletePostRedis(postId);
+    }
+
+
 
 }
